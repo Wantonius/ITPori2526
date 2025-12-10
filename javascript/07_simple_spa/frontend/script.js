@@ -2,6 +2,7 @@ var mode = 0;
 
 window.onload = function() {
 	createForm();
+	getShoppingList();
 }
 
 createForm = () => {
@@ -110,8 +111,120 @@ getShoppingList = async () => {
 	} catch (error) {
 		console.log("Failed to connect to server",error)
 	}
+}
+
+removeItem = async (id) => {
+	const url = "/api/shopping/"+id
+	const request = {
+		method:"DELETE"
+	}
+	try {
+		const response = await fetch(url,request)
+		if(response.ok) {
+			getShoppingList();
+		}
+	} catch (error) {
+		console.log("Failed to connect to server",error)
+	}
+}
+
+editItem = (item) => {
+	const typeInput = document.getElementById("type");
+	const countInput = document.getElementById("count");
+	const priceInput = document.getElementById("price");
+	typeInput.value = item.type;
+	countInput.value = item.count;
+	priceInput.value = item.price;
+	mode = item.id;
+	const submitButton = document.getElementById("submitbutton");
+	submitButton.value = "Save";
 } 
 
 populateTable = (list) => {
+	const root = document.getElementById("root");
+	const oldTable = document.getElementById("table");
+	if(oldTable) {
+		root.removeChild(oldTable);
+	}
+	const table = document.createElement("table");
+	table.setAttribute("class","table table-striped");
+	table.setAttribute("id","table");
 	
+	//Table headers
+	
+	const header = document.createElement("thead");
+	const headerRow = document.createElement("tr");
+	
+	//Type header
+	
+	const typeHeader = document.createElement("th");
+	const typeHeaderText = document.createTextNode("Type");
+	typeHeader.appendChild(typeHeaderText);
+	
+	//Count header
+	
+	const countHeader = document.createElement("th");
+	const countHeaderText = document.createTextNode("Count");
+	countHeader.appendChild(countHeaderText);
+	
+	//Price header
+	
+	const priceHeader = document.createElement("th");
+	const priceHeaderText = document.createTextNode("Price");
+	priceHeader.appendChild(priceHeaderText);
+	
+	//Remove header
+	
+	const removeHeader = document.createElement("th");
+	const removeHeaderText = document.createTextNode("remove");
+	removeHeader.appendChild(removeHeaderText);
+	
+	//Edit header
+	
+	const editHeader = document.createElement("th");
+	const editHeaderText = document.createTextNode("edit");
+	editHeader.appendChild(editHeaderText);
+	
+	headerRow.append(typeHeader,countHeader,priceHeader,removeHeader,editHeader);
+	header.appendChild(headerRow);
+	table.appendChild(header);
+	
+	//table body
+	const body = document.createElement("tbody");
+	for(let i=0;i<list.length;i++) {
+		const row = document.createElement("tr");
+		for(x in list[i]) {
+			if(x === "id") {
+				continue;
+			}
+			const column = document.createElement("td");
+			const info = document.createTextNode(list[i][x]);
+			column.appendChild(info);
+			row.appendChild(column);
+		}
+		const removeColumn = document.createElement("td");
+		const removeButton = document.createElement("button");
+		removeButton.setAttribute("class","btn btn-danger");
+		const removeText = document.createTextNode("Remove");
+		removeButton.appendChild(removeText);
+		removeButton.addEventListener("click",function(e) {
+			removeItem(list[i].id);
+		})
+		removeColumn.appendChild(removeButton);
+		
+		const editColumn = document.createElement("td");
+		const editButton = document.createElement("button");
+		editButton.setAttribute("class","btn btn-secondary");
+		const editText = document.createTextNode("Edit");
+		editButton.appendChild(editText);
+		editButton.addEventListener("click",function(e) {
+			editItem(list[i]);
+		})
+		editColumn.appendChild(editButton);
+		
+		row.append(removeColumn,editColumn);
+		body.append(row);
+	}
+	table.appendChild(body);
+	root.appendChild(table);
 }
