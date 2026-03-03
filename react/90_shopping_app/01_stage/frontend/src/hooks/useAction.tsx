@@ -1,6 +1,6 @@
 import {useState,useEffect} from 'react';
 import ShoppingItem from '../models/ShoppingItem';
-
+import {useNavigate} from 'react-router-dom';
 interface State {
 	list:ShoppingItem[];
 }
@@ -11,10 +11,12 @@ interface UrlRequest {
 }
 
 const useAction = () => {
-	
+		
 	const [state,setState] = useState<State>({
 		list:[]
 	})
+	
+	const navigate = useNavigate();
 	
 	const [urlRequest,setUrlRequest] = useState<UrlRequest>({
 		request:new Request("",{}),
@@ -48,6 +50,9 @@ const useAction = () => {
 						return;
 					}
 					case "additem":
+						getList();
+						navigate("/");
+						return;
 					case "removeitem":
 					case "edititem": {
 						getList();
