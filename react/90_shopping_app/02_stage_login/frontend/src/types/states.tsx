@@ -1,6 +1,6 @@
 import ShoppingItem from '../models/ShoppingItem';
 
-interface AppState {
+export interface AppState {
 	list:ShoppingItem[];
 	token:string;
 	isLogged:boolean;
@@ -9,4 +9,3 @@ interface AppState {
 	user:string;
 }
 
-export default AppState;

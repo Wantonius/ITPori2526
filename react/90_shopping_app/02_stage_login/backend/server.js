@@ -46,7 +46,7 @@ isUserLogged = (req,res,next) => {
 	if(!req.headers.token) {
 		return res.status(403).json({"Message":"Forbidden"});
 	}
-	sessionModel.findOne({"token":req.headers.token}.then(function(session) {
+	sessionModel.findOne({"token":req.headers.token}).then(function(session) {
 		if(!session) {
 			return res.status(403).json({"Message":"Forbidden"});
 		}
@@ -73,7 +73,7 @@ isUserLogged = (req,res,next) => {
 		console.log("Looking for session failed, Reason",err);
 		return res.status(403).json({"Message":"Forbidden"});
 	})
-)}
+}
 
 //LOGIN API
 
@@ -125,24 +125,24 @@ app.post("/login",function(req,res) {
 			if(err) {
 				console.log("BCrypt compare failed, reason",err);
 				return res.status(500).json({"Message":"Internal Server Error"})
-				if(!success) {
-					return res.status(401).json({"Message":"Unauthorized"});
-				}
-				const token = createToken();
-				const now = Date.now();
-				const session = new sessionModel({
-					user:req.body.username,
-					token:token,
-					ttl:now+time_to_live_diff
-				});
-				session.save().then(function() {
-					return res.status(200).json({"token":token})
-				}).catch(function(err) {
-					console.log("Session saving failed, Reason",err);
-					return res.status(500).json({"Message":"Internal Server Error"})
-				})
 			}
-		})
+			if(!success) {
+				return res.status(401).json({"Message":"Unauthorized"});
+			}
+			const token = createToken();
+			const now = Date.now();
+			const session = new sessionModel({
+				user:req.body.username,
+				token:token,
+				ttl:now+time_to_live_diff
+			});
+			session.save().then(function() {
+				return res.status(200).json({"token":token})
+			}).catch(function(err) {
+				console.log("Session saving failed, Reason",err);
+				return res.status(500).json({"Message":"Internal Server Error"})
+			})
+			})
 	}).catch(function(err) {
 		console.log("Error in finding user, reason",err);
 		return res.status(500).json({"Message":"Internal Server Error"});
@@ -151,7 +151,7 @@ app.post("/login",function(req,res) {
 
 app.post("/logout",function(req,res) {
 	if(!req.headers.token) {
-		return res.status(404).json({"Message","Not Found"});
+		return res.status(404).json({"Message":"Not Found"});
 	} else {
 		sessionModel.deleteOne({"token":req.headers.token}).then(function() {
 			return res.status(200).json({"Message":"Logged out"});
