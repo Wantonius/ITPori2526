@@ -6,7 +6,7 @@ interface DispatchInterface {
 }
 
 const ActionContext = React.createContext<DispatchInterface>({
-	¨dispatch:() => {}
+	dispatch:() => {}
 })
 
 ActionContext.displayName = "ActionContext";
